@@ -42,7 +42,9 @@ class _LoginViewState extends State<LoginView> {
                 UIHelper.verticalSpaceMedium(),
                 _getFeedbackUI(model),
                 UIHelper.verticalSpaceMedium(),
-                _getLoginButton(model)
+                _getLoginButton(model),
+                UIHelper.verticalSpaceMedium(),
+                _getSingUpButton(),
               ]),
             )));
   }
@@ -69,10 +71,10 @@ class _LoginViewState extends State<LoginView> {
   Widget _getLoginButton(LoginViewModel model) {
     return GestureDetector(
       onTap: () async {
-        await model.login(username: 'Test', password: 'password');
-        if (model.state == ViewState.Success) {
-          Navigator.of(context).pushNamed('/');
-        }
+        await model.login(
+          email: emailController.text,
+          password: passwordController.text,
+        );
       },
       child: Container(
         width: double.infinity,
@@ -83,6 +85,24 @@ class _LoginViewState extends State<LoginView> {
         child: Center(
             child:
                 Text('LOGIN', style: TextStyle(fontWeight: FontWeight.w800))),
+      ),
+    );
+  }
+
+  Widget _getSingUpButton() {
+    return GestureDetector(
+      onTap: () async {
+        Navigator.of(context).pushNamed('/sign-up');
+      },
+      child: Container(
+        width: double.infinity,
+        height: 40.0,
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(5.0),
+            color: Color.fromARGB(255, 9, 202, 172)),
+        child: Center(
+            child:
+                Text('SingUp', style: TextStyle(fontWeight: FontWeight.w800))),
       ),
     );
   }

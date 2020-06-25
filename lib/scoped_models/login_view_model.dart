@@ -1,26 +1,32 @@
+import 'package:example/routes/router.gr.dart';
 import 'package:example/service_locator.dart';
-import 'package:example/services/shared_preferences_service.dart';
-
+import 'package:example/services/authentication_service.dart';
+import 'package:example/services/navigation_service.dart';
 import 'base_model.dart';
-
 export 'package:example/enums/view_state.dart';
 
 class LoginViewModel extends BaseModel {
-  SharedPrefService _sharedPrefService = locator<SharedPrefService>();
-  Future<void> login({String username, String password}) async {
-    // Update state to loading so we can show indicator
+  final AuthentaticationService _authentaticationService =
+      locator<AuthentaticationService>();
+  Future<void> login({
+    String email,
+    String password,
+  }) async {
     setState(ViewState.Busy);
 
-    await Future.delayed(Duration(seconds: 1));
-    var loginResult = true; // Get real response here from service
+    var result = await _authentaticationService.loginWithEmail(
+      email: email,
+      password: password,
+    );
 
-    // determine state of the view based on response.
-    var loginStateBasedOnReponse =
-        loginResult ? ViewState.Success : ViewState.Error;
-
-    _sharedPrefService.saveBool('isFirstLaunch', false);
-
-    // Update the view state based on the response
-    setState(loginStateBasedOnReponse);
+    if (result is bool) {
+      if (result) {
+        locator<NavigationService>().navigateTo(Routes.home);
+      } else {
+        setState(ViewState.Error);
+      }
+    } else {
+      setState(ViewState.Error);
+    }
   }
 }
