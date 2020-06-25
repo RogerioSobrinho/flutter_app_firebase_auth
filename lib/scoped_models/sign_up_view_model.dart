@@ -1,27 +1,35 @@
+import 'package:example/routes/router.gr.dart';
+import 'package:example/services/authentication_service.dart';
+import 'package:example/services/navigation_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:scoped_model/scoped_model.dart';
 
+import '../service_locator.dart';
 import 'base_model.dart';
 
 export 'package:example/enums/view_state.dart';
 
 class SignUpViewModel extends BaseModel {
-  Future<bool> signUpUser({String username, String password}) async {
-    // Update state to loading so we can show indicator
-     setState(ViewState.Busy);
-
-    await Future.delayed(Duration(seconds: 1));
-    var signUpResponse = true; // Get real response here from service
-
-    // determine state of the view based on response
-    var signupStateBasedOnResponse =
-        signUpResponse ? ViewState.Success : ViewState.Error;
-
-    // Update the view state based on the response
-   setState(signupStateBasedOnResponse);
-
-    // Return the state so wherever the function was called van perform further functionality.
-    // Example. Show a dialog to the user indicating that there was a failure
-    return true;
+  final AuthentaticationService _authentaticationService =
+      locator<AuthentaticationService>();
+  Future<bool> signUpUser({
+    @required String email,
+    @required String password,
+  }) async {
+    setState(ViewState.Busy);
+    var signUpResult = await _authentaticationService.singUpWithEmail(
+      email: email,
+      password: password,
+    );
+    if (signUpResult is bool) {
+      if (signUpResult) {
+        locator<NavigationService>().navigateTo(Routes.home);
+      } else {
+        setState(ViewState.Error);
+      }
+    } else {
+      setState(ViewState.Error);
+    }
   }
 
   String checkConfirmationPasswordValid(
@@ -31,5 +39,9 @@ class SignUpViewModel extends BaseModel {
     }
 
     return null;
+  }
+
+  bool checkPasswordLengthValid({@required String password}) {
+    return password.length >= 6;
   }
 }

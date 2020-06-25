@@ -25,35 +25,38 @@ class _SignUpViewState extends State<SignUpView> {
   Widget build(BuildContext context) {
     return BaseView<SignUpViewModel>(
         builder: (context, child, model) => Scaffold(
-        backgroundColor: Color.fromARGB(255, 26, 27, 30),
-        body: Container(
-          padding: EdgeInsets.all(15.0),
-          margin: EdgeInsets.only(top: 50.0),
-          child: ListView(children: <Widget>[
-            Text('SIGN UP', style: viewTitle),
-            UIHelper.verticalSpaceLarge(),
-            UIHelper.inputField(
-                title: 'Email',
-                placeholder: 'Enter username',
-                controller: emailController),
-            UIHelper.verticalSpaceMedium(),
-            UIHelper.inputField(
-                title: 'Password',
-                placeholder: 'Enter password',
-                isPassword: true,
-                controller: passwordController),
-            UIHelper.verticalSpaceMedium(),
-            UIHelper.inputField(
-                title: 'Confirm Password',
-                placeholder: 'Confirm password',
-                isPassword: true,
-                controller: confirmPasswordController,
-                validationMessage: _passwordConfirmaionValidation),
-            _getFeedbackUI(model),
-            UIHelper.verticalSpaceMedium(),
-            _getSignUpButton(model)
-          ]),
-        )));
+            appBar: AppBar(
+              actions: <Widget>[],
+            ),
+            backgroundColor: Color.fromARGB(255, 26, 27, 30),
+            body: Container(
+              padding: EdgeInsets.all(15.0),
+              margin: EdgeInsets.only(top: 50.0),
+              child: ListView(children: <Widget>[
+                Text('SIGN UP', style: viewTitle),
+                UIHelper.verticalSpaceLarge(),
+                UIHelper.inputField(
+                    title: 'Email',
+                    placeholder: 'Enter username',
+                    controller: emailController),
+                UIHelper.verticalSpaceMedium(),
+                UIHelper.inputField(
+                    title: 'Password',
+                    placeholder: 'Enter password',
+                    isPassword: true,
+                    controller: passwordController),
+                UIHelper.verticalSpaceMedium(),
+                UIHelper.inputField(
+                    title: 'Confirm Password',
+                    placeholder: 'Confirm password',
+                    isPassword: true,
+                    controller: confirmPasswordController,
+                    validationMessage: _passwordConfirmaionValidation),
+                _getFeedbackUI(model),
+                UIHelper.verticalSpaceMedium(),
+                _getSignUpButton(model)
+              ]),
+            )));
   }
 
   Widget _getFeedbackUI(SignUpViewModel model) {
@@ -85,20 +88,30 @@ class _SignUpViewState extends State<SignUpView> {
         title: 'SIGN UP',
         onTap: () async {
           var passwordValidationMessage = model.checkConfirmationPasswordValid(
-              password: passwordController.text,
-              confirmationPassword: confirmPasswordController.text);
-
+            password: passwordController.text,
+            confirmationPassword: confirmPasswordController.text,
+          );
+          var passwordLengthIsValid =
+              model.checkPasswordLengthValid(password: passwordController.text);
           // No validation errors. Perform signup
-          if (passwordValidationMessage == null && _hasEnteredInformation) {
-            var viewState =
-                model.signUpUser(username: 'Test', password: 'password');
-            if (viewState == ViewState.Success) {
-              // Navigate to a different view here
-            }
+          if (passwordValidationMessage == null &&
+              _hasEnteredInformation &&
+              passwordLengthIsValid) {
+            await model.signUpUser(
+              email: emailController.text,
+              password: passwordController.text,
+            );
           } else {
-            setState(() {
-              _passwordConfirmaionValidation = passwordValidationMessage;
-            });
+            if (!passwordLengthIsValid) {
+              setState(() {
+                _passwordConfirmaionValidation =
+                    'minimum password length is 6 characters';
+              });
+            } else {
+              setState(() {
+                _passwordConfirmaionValidation = passwordValidationMessage;
+              });
+            }
           }
         });
   }
