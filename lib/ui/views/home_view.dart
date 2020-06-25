@@ -20,11 +20,7 @@ class _HomeViewState extends State<HomeView> {
                     IconButton(
                       icon: Icon(Icons.exit_to_app),
                       onPressed: () async {
-                        await model.logoff();
-                        if (model.state == ViewState.Success) {
-                          Navigator.of(context)
-                              .pushReplacementNamed('/login-view-route');
-                        }
+                        await model.signOut();
                       },
                     )
                   ],
